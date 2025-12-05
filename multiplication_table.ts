@@ -1,50 +1,35 @@
-export function printMultiplicationTable(numbers: Array<number>) {
-  // first, let's figure out the biggest value
-  const biggest = numbers.reduce((acc, n) => (n > acc ? n : acc));
-
-  // then, find the biggest possible result to compute its magnitude
-  let biggestResult = biggest * biggest;
-  let magnitude = 0;
-  while (biggestResult > 0) {
-    magnitude++;
-    biggestResult = Math.round(biggestResult / 10);
-  }
-  magnitude++; // add an additional space for the width
-
-  // finally, calculate and output the nicely formatted multiplication table
-  let titleRow = "*";
-  while (titleRow.length < magnitude) {
-    titleRow = " " + titleRow;
-  }
-  titleRow += " ||";
+export function createTable(numbers: number[]): number[][] {
+  const table: number[][] = []
   for (const n of numbers) {
-    let cell = `${n}`;
-    while (cell.length < magnitude) {
-      cell = " " + cell;
-    }
-    titleRow += `${cell} |`;
+    const row: number[] = []
+    for (const m of numbers) row.push(n * m)
+    table.push(row)
   }
-  console.log(titleRow);
-  let sep = "";
-  for (let i = 0; i < titleRow.length; i++) {
-    sep += "=";
+  return table
+}
+
+export function computeWidth(numbers: number[]): number {
+  const biggest = Math.max(...numbers)
+  const res = biggest * biggest
+  return `${res}`.length + 1
+}
+
+export function formatTable(numbers: number[], table: number[][], width: number): string {
+  let title = "*".padStart(width, " ") + " ||"
+  for (const n of numbers) title += `${`${n}`.padStart(width, " ")} |`
+  const sep = "=".repeat(title.length)
+  const lines = [title, sep]
+  for (let i = 0; i < numbers.length; i++) {
+    let row = `${numbers[i]}`.padStart(width, " ") + " ||"
+    for (const v of table[i]) row += `${`${v}`.padStart(width, " ")} |`
+    lines.push(row)
   }
-  console.log(sep);
-  for (const n of numbers) {
-    let row = `${n}`;
-    while (row.length < magnitude) {
-      row = ` ${row}`;
-    }
-    row = `${row} ||`;
-    for (const m of numbers) {
-      const product = n * m;
-      let cell = `${product}`;
-      while (cell.length < magnitude) {
-        cell = ` ${cell}`;
-      }
-      cell += " |";
-      row += cell;
-    }
-    console.log(row);
-  }
+  return lines.join("\n")
+}
+
+export function printMultiplicationTable(numbers: number[]): void {
+  const width = computeWidth(numbers)
+  const table = createTable(numbers)
+  const text = formatTable(numbers, table, width)
+  console.log(text)
 }
